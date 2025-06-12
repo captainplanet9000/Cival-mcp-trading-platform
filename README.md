@@ -1,4 +1,4 @@
-# MCP Trading Platform
+# Cival MCP Trading Platform
 
 > **Enterprise-Grade Algorithmic Trading Platform** 🚀  
 > Advanced AI-powered trading system with real-time analytics, risk management, and microservices architecture.
@@ -10,7 +10,7 @@
 
 ## 🎯 Overview
 
-The MCP (Model Context Protocol) Trading Platform is a comprehensive, enterprise-grade algorithmic trading system designed for institutional trading operations. It combines cutting-edge AI/ML technologies with robust risk management and real-time market analysis capabilities.
+The Cival MCP Trading Platform is a comprehensive, enterprise-grade algorithmic trading system designed for institutional trading operations. It combines cutting-edge AI/ML technologies with robust risk management and real-time market analysis capabilities.
 
 ### Key Features
 
