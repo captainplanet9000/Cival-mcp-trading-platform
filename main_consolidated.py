@@ -73,12 +73,39 @@ async def lifespan(app: FastAPI):
         service_results = await service_initializer.initialize_all_services()
         logger.info(f"Service initialization results: {service_results}")
         
+        # Register Phase 2 agent trading services
+        logger.info("Registering Phase 2 agent trading services...")
+        from core.service_registry import register_agent_trading_services, register_phase5_services
+        register_agent_trading_services()
+        
+        # Register Phase 5 advanced services
+        logger.info("Registering Phase 5 advanced services...")
+        register_phase5_services()
+        
         # Verify critical services are available
         critical_services = ["market_data", "trading_engine", "portfolio_tracker", "agent_management"]
         for service_name in critical_services:
             if not registry.get_service(service_name):
                 logger.error(f"Critical service {service_name} failed to initialize")
                 raise RuntimeError(f"Critical service {service_name} not available")
+        
+        # Verify Phase 2 agent trading services
+        phase2_services = ["agent_trading_bridge", "trading_safety_service", "agent_performance_service", "agent_coordination_service"]
+        for service_name in phase2_services:
+            service = registry.get_service(service_name)
+            if service:
+                logger.info(f"✅ Phase 2 service {service_name} ready")
+            else:
+                logger.warning(f"⚠️  Phase 2 service {service_name} not available")
+        
+        # Verify Phase 5 advanced services
+        phase5_services = ["agent_scheduler_service", "market_regime_service", "adaptive_risk_service", "portfolio_optimizer_service", "alerting_service"]
+        for service_name in phase5_services:
+            service = registry.get_service(service_name)
+            if service:
+                logger.info(f"✅ Phase 5 service {service_name} ready")
+            else:
+                logger.warning(f"⚠️  Phase 5 service {service_name} not available")
         
         logger.info("✅ MCP Trading Platform ready for agent trading operations!")
         
@@ -143,7 +170,9 @@ async def root():
             "agents": "/api/v1/agents/*",
             "portfolio": "/api/v1/portfolio/*",
             "risk": "/api/v1/risk/*",
-            "ai_analytics": "/api/v1/ai/*"
+            "ai_analytics": "/api/v1/ai/*",
+            "agent_trading": "/api/v1/agent-trading/*",
+            "dashboard": "/dashboard"
         }
     }
 
@@ -501,6 +530,10 @@ if DEBUG:
     async def debug_health():
         """Detailed health check for debugging"""
         return await registry.health_check()
+
+# Include Phase 2 Agent Trading API endpoints
+from api.phase2_endpoints import router as phase2_router
+app.include_router(phase2_router)
 
 # Mount dashboard and static files
 if os.path.exists("dashboard/static"):
