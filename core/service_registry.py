@@ -162,6 +162,58 @@ class ServiceRegistry:
         self._initialized = False
         logger.info("Registry cleanup completed")
 
+# Import and register Phase 2 agent trading services
+def register_agent_trading_services():
+    """Register Phase 2 agent trading integration services"""
+    from ..services.agent_trading_bridge import create_agent_trading_bridge
+    from ..services.trading_safety_service import create_trading_safety_service
+    from ..services.agent_performance_service import create_agent_performance_service
+    from ..services.agent_coordination_service import create_agent_coordination_service
+    
+    # Register safety service first (no dependencies)
+    registry.register_service_factory("trading_safety_service", create_trading_safety_service)
+    
+    # Register performance service (no dependencies)
+    registry.register_service_factory("agent_performance_service", create_agent_performance_service)
+    
+    # Register agent trading bridge (requires execution, risk, agent services)
+    def create_bridge():
+        execution_service = registry.get_service("execution_specialist_service")
+        risk_service = registry.get_service("risk_manager_service")
+        agent_service = registry.get_service("agent_management_service")
+        return create_agent_trading_bridge(execution_service, risk_service, agent_service)
+    
+    registry.register_service_factory("agent_trading_bridge", create_bridge)
+    
+    # Register coordination service (requires bridge, safety, performance)
+    def create_coordination():
+        bridge = registry.get_service("agent_trading_bridge")
+        safety = registry.get_service("trading_safety_service")
+        performance = registry.get_service("agent_performance_service")
+        return create_agent_coordination_service(bridge, safety, performance)
+    
+    registry.register_service_factory("agent_coordination_service", create_coordination)
+    
+    logger.info("Registered Phase 2 agent trading services")
+
+# Import and register Phase 5 advanced services
+def register_phase5_services():
+    """Register Phase 5 advanced agent operations and analytics services"""
+    from ..services.agent_scheduler_service import create_agent_scheduler_service
+    from ..services.market_regime_service import create_market_regime_service
+    from ..services.adaptive_risk_service import create_adaptive_risk_service
+    from ..services.portfolio_optimizer_service import create_portfolio_optimizer_service
+    from ..services.alerting_service import create_alerting_service
+    
+    # Register standalone services
+    registry.register_service_factory("agent_scheduler_service", create_agent_scheduler_service)
+    registry.register_service_factory("market_regime_service", create_market_regime_service)
+    registry.register_service_factory("adaptive_risk_service", create_adaptive_risk_service)
+    registry.register_service_factory("portfolio_optimizer_service", create_portfolio_optimizer_service)
+    registry.register_service_factory("alerting_service", create_alerting_service)
+    
+    logger.info("Registered Phase 5 advanced services")
+
 # Global registry instance
 registry = ServiceRegistry()
 
