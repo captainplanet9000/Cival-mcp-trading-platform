@@ -84,6 +84,10 @@ from models.auth_models import AuthenticatedUser
 from models.user_models import UserPreferences
 from services.user_preference_service import UserPreferenceService, UserPreferenceServiceError
 
+# API Routes
+from api.v1 import monitoring_routes, simulation_routes
+from api import phase8_endpoints
+
 # Hyperliquid Models (for new endpoints)
 from models.hyperliquid_models import (
     HyperliquidAccountSnapshot,
@@ -388,7 +392,8 @@ app = FastAPI(
 
 # Include API routers
 app.include_router(monitoring_routes.router)
-app.include_router(simulation_routes.router, prefix="/api/v1", tags=["Simulations"]) # Added Simulation router
+app.include_router(simulation_routes.router, prefix="/api/v1", tags=["Simulations"])
+app.include_router(phase8_endpoints.router)  # Phase 8: Intelligent Goal Management + Farm Knowledge
 # Add other V1 routers here if created, e.g., for agent interactions, configurations etc.
 
 

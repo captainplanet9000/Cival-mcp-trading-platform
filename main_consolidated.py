@@ -82,6 +82,11 @@ async def lifespan(app: FastAPI):
         logger.info("Registering Phase 5 advanced services...")
         register_phase5_services()
         
+        # Register Phase 6-8 services (Master Wallet, Farms, Goals)
+        logger.info("Registering Phase 6-8 autonomous services...")
+        from core.service_registry import register_autonomous_services
+        register_autonomous_services()
+        
         # Verify critical services are available
         critical_services = ["market_data", "trading_engine", "portfolio_tracker", "agent_management"]
         for service_name in critical_services:
@@ -106,6 +111,15 @@ async def lifespan(app: FastAPI):
                 logger.info(f"✅ Phase 5 service {service_name} ready")
             else:
                 logger.warning(f"⚠️  Phase 5 service {service_name} not available")
+        
+        # Verify Phase 6-8 autonomous services
+        autonomous_services = ["autonomous_fund_distribution_engine", "master_wallet_contracts", "goal_management_service", "farm_management_service"]
+        for service_name in autonomous_services:
+            service = registry.get_service(service_name)
+            if service:
+                logger.info(f"✅ Autonomous service {service_name} ready")
+            else:
+                logger.warning(f"⚠️  Autonomous service {service_name} not available")
         
         logger.info("✅ MCP Trading Platform ready for agent trading operations!")
         
@@ -172,6 +186,7 @@ async def root():
             "risk": "/api/v1/risk/*",
             "ai_analytics": "/api/v1/ai/*",
             "agent_trading": "/api/v1/agent-trading/*",
+            "autonomous_system": "/api/v1/autonomous/*",
             "dashboard": "/dashboard"
         }
     }
@@ -534,6 +549,10 @@ if DEBUG:
 # Include Phase 2 Agent Trading API endpoints
 from api.phase2_endpoints import router as phase2_router
 app.include_router(phase2_router)
+
+# Include Phase 6-8 Autonomous Trading API endpoints
+from api.autonomous_endpoints import router as autonomous_router
+app.include_router(autonomous_router)
 
 # Mount dashboard and static files
 if os.path.exists("dashboard/static"):

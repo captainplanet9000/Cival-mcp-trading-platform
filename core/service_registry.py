@@ -214,6 +214,28 @@ def register_phase5_services():
     
     logger.info("Registered Phase 5 advanced services")
 
+# Import and register Phase 6-8 autonomous services
+def register_autonomous_services():
+    """Register Phase 6-8 autonomous services (Master Wallet, Farms, Goals)"""
+    from ..services.autonomous_fund_distribution_engine import create_autonomous_fund_distribution_engine
+    from ..contracts.master_wallet_contracts import create_master_wallet_smart_contract_service
+    from ..services.goal_management_service import create_goal_management_service
+    from ..services.farm_management_service import create_farm_management_service
+    
+    # Register autonomous fund distribution engine
+    registry.register_service_factory("autonomous_fund_distribution_engine", create_autonomous_fund_distribution_engine)
+    
+    # Register smart contract service
+    registry.register_service_factory("master_wallet_contracts", create_master_wallet_smart_contract_service)
+    
+    # Register goal management service
+    registry.register_service_factory("goal_management_service", create_goal_management_service)
+    
+    # Register farm management service
+    registry.register_service_factory("farm_management_service", create_farm_management_service)
+    
+    logger.info("Registered Phase 6-8 autonomous services")
+
 # Global registry instance
 registry = ServiceRegistry()
 
