@@ -1,0 +1,24 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "NIXPACKS"
+  },
+  "deploy": {
+    "numReplicas": 1,
+    "sleepApplication": false,
+    "restartPolicyType": "ON_FAILURE",
+    "startCommand": "python main_consolidated.py"
+  },
+  "variables": {
+    "ENVIRONMENT": "production",
+    "LOG_LEVEL": "INFO",
+    "WORKERS": "1",
+    "PORT": "8000",
+    "HOST": "0.0.0.0",
+    "ENABLE_DASHBOARD": "true",
+    "ENABLE_WEBSOCKETS": "true",
+    "MAX_AGENTS": "50",
+    "MAX_GOALS": "100",
+    "AUTONOMOUS_MODE": "true"
+  }
+}
