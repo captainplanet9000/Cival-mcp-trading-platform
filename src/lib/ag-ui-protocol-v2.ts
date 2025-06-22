@@ -3,6 +3,8 @@
  * Basic implementation for build compatibility
  */
 
+import { useState, useEffect, useCallback } from 'react'
+
 export interface TradingEvents {
   'portfolio.value_updated': { total_value: number; change_24h: number; change_percentage: number }
   'trade.order_placed': { symbol: string; side: string; order_id: string; quantity?: number; price?: number }
@@ -39,6 +41,19 @@ export interface ComponentEvents {
   'chart.indicator_change': { symbol: string; indicators: string[]; timeframe: string }
   'chart.timeframe_change': { symbol: string; timeframe: string; previous_timeframe: string }
   'chart.zoom_change': { symbol: string; start_time: number; end_time: number }
+  'chart.data_updated': { symbol: string; timeframe: string; dataPoints: number; timestamp: number; lastPrice?: number }
+  'chart.data_error': { symbol: string; error: string; usingMockData: boolean }
+  'chart.symbol_changed': { newSymbol: string; oldSymbol?: string }
+  'linked_chart.symbol_selected': { symbol: string; price: number; source: string }
+  'linked_chart.crosshair_move': { symbol: string; timestamp: number; open: number; high: number; low: number; close: number; volume?: number; change: number; changePercent: number }
+  'linked_chart.data_refreshed': { symbols: string[]; activeSymbol: string }
+  
+  // Form Events
+  'form.auto_form_submit_started': { schemaTitle?: string; fieldCount: number; data: any }
+  'form.auto_form_submit_completed': { schemaTitle?: string; success: boolean; data?: any; processingTime?: number }
+  'form.auto_form_submit_failed': { schemaTitle?: string; error: string; data?: any }
+  'form.field_added': { fieldType: string; fieldKey: string }
+  'form.field_removed': { fieldKey: string }
   
   // Calendar Events
   'calendar.event_created': { 
@@ -46,7 +61,7 @@ export interface ComponentEvents {
     title: string; 
     start: string; 
     end: string; 
-    type: 'market' | 'strategy' | 'agent' | 'custom';
+    type: 'earnings_announcement' | 'market_open' | 'market_close' | 'strategy_execution' | 'risk_assessment' | 'portfolio_review' | 'economic_data' | 'fed_meeting' | 'options_expiry' | 'dividend_date' | 'strategy_meeting' | 'backtesting' | 'performance_review' | 'other' | 'market' | 'strategy' | 'agent' | 'custom';
     agent_id?: string;
     strategy_id?: string;
   }
@@ -56,6 +71,9 @@ export interface ComponentEvents {
     updated_by?: string;
   }
   'calendar.event_deleted': { event_id: string; deleted_by?: string }
+  'calendar.event_selected': { eventId: string; eventType: string; eventTitle: string; eventDate: string }
+  'calendar.event_moved': { eventId: string; oldStart: string; newStart: string; oldEnd: string; newEnd: string }
+  'calendar.event_resized': { eventId: string; oldStart: string; newStart: string; oldEnd: string; newEnd: string }
   'calendar.view_changed': { view: 'month' | 'week' | 'day' | 'agenda'; date: string }
   
   // Upload Events
@@ -126,7 +144,7 @@ export function publishComponentEvent<T extends keyof ComponentEvents>(
   eventName: T, 
   data: ComponentEvents[T]
 ): void {
-  emit(eventName, data);
+  emit(eventName as EventName, data as EventData<EventName>);
 }
 
 // Batch event publishing for performance
@@ -203,5 +221,77 @@ export function getAGUIEventBus(): AGUIEventBus {
     clearAllSubscriptions: () => {
       eventListeners.clear();
     }
+  };
+}
+
+// React hook for AG-UI Protocol v2
+export function useAGUIProtocol() {
+  const [eventBus] = useState(() => getAGUIEventBus());
+  const [isConnected, setIsConnected] = useState(false);
+  const [subscriberCounts, setSubscriberCounts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    // Initialize the event bus
+    eventBus.initialize().then(() => {
+      setIsConnected(true);
+    });
+
+    return () => {
+      eventBus.clearAllSubscriptions();
+      setIsConnected(false);
+    };
+  }, [eventBus]);
+
+  const subscribe = useCallback(<T extends EventName>(
+    eventName: T,
+    callback: (data: EventData<T>) => void
+  ) => {
+    const subscription = eventBus.subscribe(eventName, callback);
+    
+    // Update subscriber count
+    setSubscriberCounts(prev => ({
+      ...prev,
+      [eventName]: eventBus.getSubscriberCount(eventName)
+    }));
+
+    return {
+      unsubscribe: () => {
+        subscription.unsubscribe();
+        setSubscriberCounts(prev => ({
+          ...prev,
+          [eventName]: eventBus.getSubscriberCount(eventName)
+        }));
+      }
+    };
+  }, [eventBus]);
+
+  const emit = useCallback(<T extends EventName>(
+    eventName: T,
+    data: EventData<T>
+  ) => {
+    eventBus.emit(eventName, data);
+  }, [eventBus]);
+
+  const publishComponentEvent = useCallback(<T extends keyof ComponentEvents>(
+    eventName: T,
+    data: ComponentEvents[T]
+  ) => {
+    emit(eventName as EventName, data as EventData<EventName>);
+  }, [emit]);
+
+  // Alias for backward compatibility
+  const publishEvent = emit;
+  const subscribeToEvent = subscribe;
+
+  return {
+    isConnected,
+    subscriberCounts,
+    subscribe,
+    subscribeToEvent,
+    emit,
+    publishEvent,
+    publishComponentEvent,
+    getSubscriberCount: eventBus.getSubscriberCount,
+    clearAllSubscriptions: eventBus.clearAllSubscriptions
   };
 }
