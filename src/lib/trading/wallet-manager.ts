@@ -902,7 +902,7 @@ export class WalletManager {
     )
 
     const allowance = await contract.allowance(wallet.address, spenderAddress)
-    return ethers.utils.formatUnits(allowance, token.decimals)
+    return ethers.formatUnits(allowance, token.decimals)
   }
 
   /**
