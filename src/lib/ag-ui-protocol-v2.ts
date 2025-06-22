@@ -1,0 +1,207 @@
+/**
+ * AG-UI Protocol v2 - Mock Implementation
+ * Basic implementation for build compatibility
+ */
+
+export interface TradingEvents {
+  'portfolio.value_updated': { total_value: number; change_24h: number; change_percentage: number }
+  'trade.order_placed': { symbol: string; side: string; order_id: string; quantity?: number; price?: number }
+  'trade.order_filled': { symbol: string; side: string; quantity: number; fill_price: number; order_id: string; fees?: number; exchange: string }
+  'trade.order_cancelled': { order_id: string; reason?: string }
+  'trade.signal_generated': { symbol: string; action: string; confidence: number; timestamp?: number; price?: number; strategy?: string }
+  'trade.position_update': { position_id: string; symbol: string; current_value: number; unrealized_pnl: number }
+  'trade.executed': any
+  'market_data.price_update': { symbol: string; price: number; timestamp?: number; volume?: number }
+}
+
+export interface AgentEvents {
+  'agent.started': { agent_id: string; timestamp?: number }
+  'agent.stopped': { agent_id: string; reason: string; timestamp?: number }
+  'agent.decision_made': { agent_id: string; decision: string }
+  'agent.communication': { from_agent: string; to_agent: string; message: string }
+  'agent.consensus_reached': { decision_id: string; participants: string[]; agreement_level: number; decision?: string; reasoning?: string }
+  'agent.performance_update': { agent_id: string; metrics: any }
+  'conversation.create': { topic: string; participants: string[]; context: any; timestamp?: number }
+  'conversation.send_message': { conversation_id: string; sender_id: string; content: string; timestamp?: number }
+}
+
+export interface WalletEvents {
+  'portfolio.risk_alert': { message: string; value?: number }
+  'portfolio.margin_warning': { utilization: number; threshold: number }
+  'system.notification': { type: string; message: string; level: string; timestamp?: number }
+  'connection.established': {}
+  'connection.lost': {}
+}
+
+export interface ComponentEvents {
+  // Chart Events
+  'chart.crosshair_move': { symbol: string; price: number; time: number; volume?: number }
+  'chart.indicator_change': { symbol: string; indicators: string[]; timeframe: string }
+  'chart.timeframe_change': { symbol: string; timeframe: string; previous_timeframe: string }
+  'chart.zoom_change': { symbol: string; start_time: number; end_time: number }
+  
+  // Calendar Events
+  'calendar.event_created': { 
+    event_id: string; 
+    title: string; 
+    start: string; 
+    end: string; 
+    type: 'market' | 'strategy' | 'agent' | 'custom';
+    agent_id?: string;
+    strategy_id?: string;
+  }
+  'calendar.event_updated': { 
+    event_id: string; 
+    changes: Record<string, any>;
+    updated_by?: string;
+  }
+  'calendar.event_deleted': { event_id: string; deleted_by?: string }
+  'calendar.view_changed': { view: 'month' | 'week' | 'day' | 'agenda'; date: string }
+  
+  // Upload Events
+  'upload.started': { file_id: string; filename: string; size: number; type: string }
+  'upload.progress': { file_id: string; progress: number; bytes_uploaded: number }
+  'upload.completed': { file_id: string; url: string; processing_time: number }
+  'upload.failed': { file_id: string; error: string; retry_count: number }
+  
+  // Communication Events
+  'mention.agent_tagged': { 
+    agent_id: string; 
+    message_id: string; 
+    context: string; 
+    tagged_by: string;
+    conversation_id?: string;
+  }
+  'mention.notification_sent': { agent_id: string; message_id: string; status: 'sent' | 'delivered' | 'read' }
+  'conversation.participant_added': { conversation_id: string; participant_id: string; added_by: string }
+  'conversation.participant_removed': { conversation_id: string; participant_id: string; removed_by: string }
+  
+  // Form Events  
+  'form.validation_started': { form_id: string; schema_type: string; field_count: number }
+  'form.validation_completed': { form_id: string; valid: boolean; errors?: Record<string, string[]> }
+  'form.submitted': { form_id: string; data: Record<string, any>; submission_time: number }
+  'form.auto_saved': { form_id: string; field_name: string; value: any }
+  
+  // Button Events
+  'button.trading_action_triggered': { 
+    action: 'buy' | 'sell' | 'close' | 'hedge'; 
+    symbol: string; 
+    amount?: number; 
+    confirmation_required: boolean;
+  }
+  'button.confirmation_shown': { action_id: string; action_type: string; risk_level: 'low' | 'medium' | 'high' }
+  'button.action_confirmed': { action_id: string; confirmed_at: number; user_id: string }
+  'button.action_cancelled': { action_id: string; cancelled_at: number; reason?: string }
+}
+
+type EventName = keyof (TradingEvents & AgentEvents & WalletEvents & ComponentEvents)
+type EventData<T extends EventName> = (TradingEvents & AgentEvents & WalletEvents & ComponentEvents)[T]
+
+export interface EventSubscription {
+  unsubscribe: () => void
+}
+
+export function subscribe<T extends EventName>(
+  eventName: T, 
+  callback: (event: { data: EventData<T> }) => void
+): EventSubscription {
+  // Mock implementation
+  return {
+    unsubscribe: () => {}
+  }
+}
+
+export function emit<T extends EventName>(eventName: T, data: EventData<T>): void {
+  // Enhanced mock implementation with logging
+  console.log(`[AG-UI Protocol v2] Event emitted: ${eventName}`, data);
+  
+  // Simulate event broadcasting to subscribers
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(`agui:${eventName}`, { detail: data }));
+  }
+}
+
+// Enhanced event publishing for component-specific events
+export function publishComponentEvent<T extends keyof ComponentEvents>(
+  eventName: T, 
+  data: ComponentEvents[T]
+): void {
+  emit(eventName, data);
+}
+
+// Batch event publishing for performance
+export function publishBatch(events: Array<{ name: EventName; data: any }>): void {
+  events.forEach(({ name, data }) => emit(name, data));
+}
+
+export interface AGUIEventBus {
+  initialize: () => Promise<void>;
+  subscribe: <T extends EventName>(eventName: T, callback: (data: EventData<T>) => void) => EventSubscription;
+  emit: <T extends EventName>(eventName: T, data: EventData<T>) => void;
+  getSubscriberCount: (eventName: EventName) => number;
+  clearAllSubscriptions: () => void;
+}
+
+// Enhanced event bus with real functionality
+const eventListeners = new Map<string, Set<Function>>();
+
+export function getAGUIEventBus(): AGUIEventBus {
+  return {
+    initialize: async () => {
+      console.log('[AG-UI Protocol v2] Event bus initialized');
+    },
+    
+    subscribe: <T extends EventName>(
+      eventName: T, 
+      callback: (data: EventData<T>) => void
+    ): EventSubscription => {
+      if (!eventListeners.has(eventName)) {
+        eventListeners.set(eventName, new Set());
+      }
+      
+      const listeners = eventListeners.get(eventName)!;
+      listeners.add(callback);
+      
+      // Also subscribe to browser events
+      if (typeof window !== 'undefined') {
+        const browserCallback = (event: CustomEvent) => callback(event.detail);
+        window.addEventListener(`agui:${eventName}`, browserCallback);
+        
+        return {
+          unsubscribe: () => {
+            listeners.delete(callback);
+            window.removeEventListener(`agui:${eventName}`, browserCallback);
+          }
+        };
+      }
+      
+      return {
+        unsubscribe: () => listeners.delete(callback)
+      };
+    },
+    
+    emit: <T extends EventName>(eventName: T, data: EventData<T>) => {
+      const listeners = eventListeners.get(eventName);
+      if (listeners) {
+        listeners.forEach(callback => {
+          try {
+            callback(data);
+          } catch (error) {
+            console.error(`[AG-UI Protocol v2] Error in event listener for ${eventName}:`, error);
+          }
+        });
+      }
+      
+      // Also emit browser event
+      emit(eventName, data);
+    },
+    
+    getSubscriberCount: (eventName: EventName) => {
+      return eventListeners.get(eventName)?.size || 0;
+    },
+    
+    clearAllSubscriptions: () => {
+      eventListeners.clear();
+    }
+  };
+}

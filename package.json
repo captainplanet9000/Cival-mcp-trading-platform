@@ -93,7 +93,10 @@
     "ws": "^8.16.0",
     "zod": "^3.22.0",
     "zustand": "^5.0.5",
-    "eventsource": "^2.0.2"
+    "eventsource": "^2.0.2",
+    "react-apexcharts": "^1.4.1",
+    "apexcharts": "^3.44.0",
+    "deepmerge": "^4.3.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
