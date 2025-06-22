@@ -7,6 +7,7 @@
     "dev": "next dev --turbopack --port 3000",
     "dev:safe": "next dev --port 8080",
     "build": "next build",
+    "install": "npm install --legacy-peer-deps",
     "install:prod": "npm install --omit=dev --legacy-peer-deps",
     "start": "next start --port $PORT",
     "lint": "next lint",
@@ -94,9 +95,11 @@
     "zod": "^3.22.0",
     "zustand": "^5.0.5",
     "eventsource": "^2.0.2",
-    "react-apexcharts": "^1.4.1",
-    "apexcharts": "^3.44.0",
-    "deepmerge": "^4.3.1"
+    "react-apexcharts": "^1.4.0",
+    "apexcharts": "^4.1.0",
+    "deepmerge": "^4.3.1",
+    "react-big-calendar": "^1.8.2",
+    "moment": "^2.29.4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
