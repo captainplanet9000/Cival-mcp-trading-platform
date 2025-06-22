@@ -2,7 +2,7 @@
   "name": "cival-dashboard",
   "version": "0.1.0",
   "private": true,
-  "description": "Advanced algorithmic trading dashboard with AI-powered strategies, real-time analytics, and comprehensive risk management",
+  "description": "Advanced algorithmic trading dashboard with AI-powered strategies, real-time analytics, and comprehensive risk management. Build system completed successfully.",
   "scripts": {
     "dev": "next dev --turbopack --port 3000",
     "dev:safe": "next dev --port 8080",
