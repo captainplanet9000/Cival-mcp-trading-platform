@@ -292,10 +292,12 @@ export function useFileAccessPermissions(fileId?: string) {
 }
 
 // Export all hooks
-export default {
+const supabaseHooks = {
   useSupabase,
   useCurrentUser,
   useAuth,
   useAgentTradingPermissions,
   useFileAccessPermissions
 }
+
+export default supabaseHooks

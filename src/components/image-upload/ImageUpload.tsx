@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useCallback } from 'react'
+import Image from 'next/image'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -488,9 +489,11 @@ export function ImageUpload({
               {images.map((image) => (
                 <div key={image.id} className="relative group">
                   <div className="aspect-square rounded-lg overflow-hidden bg-muted">
-                    <img
+                    <Image
                       src={image.thumbnailUrl || image.url}
                       alt={image.name}
+                      width={200}
+                      height={200}
                       className="w-full h-full object-cover"
                     />
                     
@@ -568,9 +571,11 @@ export function ImageUpload({
         {selectedImage && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
             <div className="relative max-w-4xl max-h-screen p-4">
-              <img
+              <Image
                 src={selectedImage.url}
                 alt={selectedImage.name}
+                width={800}
+                height={600}
                 className="max-w-full max-h-full object-contain"
               />
               <Button

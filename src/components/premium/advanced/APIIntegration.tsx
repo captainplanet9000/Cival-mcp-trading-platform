@@ -33,7 +33,8 @@ import {
   LinkIcon,
   BoltIcon,
   ShieldCheckIcon,
-  GlobeAltIcon
+  GlobeAltIcon,
+  PlusIcon
 } from '@heroicons/react/24/outline'
 
 interface APIEndpoint {

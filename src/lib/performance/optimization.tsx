@@ -463,3 +463,6 @@ export class PerformanceErrorBoundary extends React.Component<
     return this.props.children;
   }
 }
+
+// Re-export the usePerformanceMonitor hook from the dedicated file
+export { usePerformanceMonitor } from '@/components/premium/hooks/usePerformanceMonitor'
