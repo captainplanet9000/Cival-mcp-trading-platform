@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback, useContext } from 'react';
 
 interface PerformanceMetrics {
   renderTime: number;
@@ -364,4 +364,3 @@ export function useGlobalPerformance() {
   return context;
 }
 
-import React, { useContext } from 'react';
